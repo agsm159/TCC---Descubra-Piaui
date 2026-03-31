@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'controllers/auth_controller.dart';
 import 'core/theme.dart';
@@ -14,7 +15,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mapa Interativo do Piauí',
+      title: 'Descobre Piauí',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       initialRoute: '/welcome',
@@ -25,6 +26,13 @@ class App extends StatelessWidget {
         '/perfil': (context) => const PerfilView(),
         '/favoritos': (context) => const FavoritosView(),
       },
+
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('pt', 'BR')],
     );
   }
 }

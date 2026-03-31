@@ -3,19 +3,20 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Usuario {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  senha     String
-  isAdmin   Boolean  @default(false)
-  nome      String?
-  criadoEm  DateTime @default(now())
-  favoritos Favorito[]
+  id         String       @id @default(uuid())
+  email      String       @unique
+  senha      String
+  isAdmin    Boolean      @default(false)
+  nome       String?
+  criadoEm   DateTime     @default(now())
+  favoritos  Favorito[]
+  avaliacoes  Avaliacao[]
+  comentarios Comentario[]
 }
 
 model Cidade {
@@ -33,17 +34,22 @@ model Zona {
 }
 
 model PontoInteresse {
-  id              String           @id @default(uuid())
+  id              String                 @id @default(uuid())
   nome            String
   descricao       String
   latitude        Float
   longitude       Float
   imagens         String[]
   zonaId          String
-  zona            Zona             @relation(fields: [zonaId], references: [id])
+  zona            Zona                   @relation(fields: [zonaId], references: [id])
   acessibilidades Acessibilidade[]
-  criadoEm        DateTime         @default(now())
-  favoritos Favorito[]
+  criadoEm        DateTime               @default(now())
+  favoritos       Favorito[]
+  horarios        HorarioFuncionamento[]
+  atividades      Atividade[]
+  eventos         Evento[]
+  avaliacoes      Avaliacao[]
+  comentarios     Comentario[]
 }
 
 model Acessibilidade {
@@ -62,4 +68,53 @@ model Favorito {
   criadoEm  DateTime       @default(now())
 
   @@unique([usuarioId, pontoId])
+}
+
+model HorarioFuncionamento {
+  id         String         @id @default(uuid())
+  diaSemana  String
+  abertura   String
+  fechamento String
+  pontoId    String
+  ponto      PontoInteresse @relation(fields: [pontoId], references: [id], onDelete: Cascade)
+}
+
+model Atividade {
+  id        String         @id @default(uuid())
+  nome      String
+  descricao String
+  pontoId   String
+  ponto     PontoInteresse @relation(fields: [pontoId], references: [id], onDelete: Cascade)
+}
+
+model Evento {
+  id        String         @id @default(uuid())
+  nome      String
+  descricao String
+  data      DateTime
+  pontoId   String
+  ponto     PontoInteresse @relation(fields: [pontoId], references: [id], onDelete: Cascade)
+  criadoEm  DateTime       @default(now())
+}
+
+model Avaliacao {
+  id        String         @id @default(uuid())
+  estrelas  Int
+  usuarioId String
+  pontoId   String
+  usuario   Usuario        @relation(fields: [usuarioId], references: [id])
+  ponto     PontoInteresse @relation(fields: [pontoId], references: [id], onDelete: Cascade)
+  criadoEm  DateTime       @default(now())
+
+  @@unique([usuarioId, pontoId])
+}
+
+model Comentario {
+  id        String         @id @default(uuid())
+  texto     String
+  usuarioId String
+  pontoId   String
+  usuario   Usuario        @relation(fields: [usuarioId], references: [id])
+  ponto     PontoInteresse @relation(fields: [pontoId], references: [id], onDelete: Cascade)
+  criadoEm  DateTime       @default(now())
 }

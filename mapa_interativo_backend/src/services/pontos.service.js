@@ -1,5 +1,13 @@
 const prisma = require("../prisma/client");
 
+const incluirRelacoes = {
+  zona: { include: { cidade: true } },
+  acessibilidades: true,
+  horarios: { orderBy: { diaSemana: "asc" } },
+  atividades: { orderBy: { nome: "asc" } },
+  eventos: { orderBy: { data: "asc" } },
+};
+
 module.exports = {
   async listarTodos({ cidadeId, zonaId } = {}) {
     return prisma.pontoInteresse.findMany({
@@ -7,20 +15,14 @@ module.exports = {
         zona: cidadeId ? { cidadeId } : undefined,
         zonaId: zonaId || undefined,
       },
-      include: {
-        zona: { include: { cidade: true } },
-        acessibilidades: true,
-      },
+      include: incluirRelacoes,
     });
   },
 
   async buscarPorId(id) {
     return prisma.pontoInteresse.findUnique({
       where: { id },
-      include: {
-        zona: { include: { cidade: true } },
-        acessibilidades: true,
-      },
+      include: incluirRelacoes,
     });
   },
 
@@ -44,13 +46,11 @@ module.exports = {
     const { acessibilidades, ...dadosPonto } = data;
 
     return prisma.$transaction(async (tx) => {
-      
       const pontoAtualizado = await tx.pontoInteresse.update({
         where: { id },
         data: dadosPonto,
       });
 
-      
       if (acessibilidades !== undefined) {
         await tx.acessibilidade.deleteMany({ where: { pontoId: id } });
 

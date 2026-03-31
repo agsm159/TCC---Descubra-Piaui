@@ -7,6 +7,11 @@ const zonasRoutes = require('./routes/zonas.routes');
 const pontosRoutes = require('./routes/pontos.routes');
 const favoritosRoutes = require('./routes/favoritos.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const horariosRoutes = require('./routes/horarios.routes');
+const atividadesRoutes = require('./routes/atividades.routes');
+const eventosRoutes = require('./routes/eventos.routes');
+const avaliacoesRoutes = require('./routes/avaliacoes.routes');
+const comentariosRoutes = require('./routes/comentarios.routes');
 
 const app = express();
 
@@ -23,5 +28,10 @@ app.use('/api/zonas', zonasRoutes);
 app.use('/api/pontos', pontosRoutes);
 app.use('/api/favoritos', favoritosRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/pontos/:pontoId/horarios', horariosRoutes);
+app.use('/api/pontos/:pontoId/atividades', atividadesRoutes);
+app.use('/api/pontos/:pontoId/eventos', eventosRoutes);
+app.use('/api/pontos/:pontoId/avaliacoes', avaliacoesRoutes);
+app.use('/api/pontos/:pontoId/comentarios', comentariosRoutes);
 
 module.exports = app;

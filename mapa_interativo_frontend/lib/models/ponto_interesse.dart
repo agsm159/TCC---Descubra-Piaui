@@ -1,4 +1,7 @@
 import 'acessibilidade.dart';
+import 'horario_funcionamento.dart';
+import 'atividade.dart';
+import 'evento.dart';
 
 class PontoInteresse {
   final String id;
@@ -8,7 +11,10 @@ class PontoInteresse {
   final double longitude;
   final List<String> imagens;
   final List<Acessibilidade> acessibilidade;
-  final String idZona; 
+  final String idZona;
+  final List<HorarioFuncionamento> horarios;
+  final List<Atividade> atividades;
+  final List<Evento> eventos;
 
   PontoInteresse({
     required this.id,
@@ -19,6 +25,9 @@ class PontoInteresse {
     required this.imagens,
     required this.acessibilidade,
     required this.idZona,
+    this.horarios = const [],
+    this.atividades = const [],
+    this.eventos = const [],
   });
 
   factory PontoInteresse.fromJson(Map<String, dynamic> json) {
@@ -30,9 +39,18 @@ class PontoInteresse {
       longitude: (json['longitude'] as num).toDouble(),
       imagens: List<String>.from(json['imagens'] ?? []),
       idZona: json['zonaId'],
-      acessibilidade: (json['acessibilidades'] as List?)
-          ?.map((a) => Acessibilidade.fromString(a['tipo'] as String))
-          .toList() ?? [],
+      acessibilidade:
+          (json['acessibilidades'] as List?)
+            ?.map((a) => Acessibilidade.fromString(a['tipo'] as String)).toList() ?? [],
+      horarios:
+          (json['horarios'] as List?)
+            ?.map((h) => HorarioFuncionamento.fromJson(h)).toList() ?? [],
+      atividades:
+          (json['atividades'] as List?)
+            ?.map((a) => Atividade.fromJson(a)).toList() ?? [],
+      eventos:
+          (json['eventos'] as List?)
+            ?.map((e) => Evento.fromJson(e)).toList() ?? [],
     );
   }
 
