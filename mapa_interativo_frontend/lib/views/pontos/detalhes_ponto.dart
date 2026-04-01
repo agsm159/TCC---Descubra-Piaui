@@ -82,7 +82,7 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ponto excluído com sucesso')),
       );
-      Navigator.pop(context); // volta para a tela anterior
+      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -166,7 +166,6 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
       appBar: AppBar(
         title: Text(_ponto.nome),
         actions: [
-          // Botões de Admin
           // Botão de editar
           if (auth.isAdmin) ...[
             IconButton(
@@ -253,7 +252,6 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
                             ),
                           ),
 
-                          // Indicadores de página
                           if (_ponto.imagens.length > 1)
                             Positioned(
                               bottom: 8,
@@ -318,23 +316,19 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
                       }).toList(),
                     ),
                   ],
-                  // ── Horários de funcionamento ──────────────────────────
+
                   const SizedBox(height: 24),
                   _SecaoHorarios(pontoId: _ponto.id),
 
-                  // ── Atividades ─────────────────────────────────────────
                   const SizedBox(height: 24),
                   _SecaoAtividades(pontoId: _ponto.id),
 
-                  // ── Eventos ────────────────────────────────────────────
                   const SizedBox(height: 24),
                   _SecaoEventos(pontoId: _ponto.id),
 
-                  // ── Avaliações ─────────────────────────────────────────
                   const SizedBox(height: 24),
                   _SecaoAvaliacoes(pontoId: _ponto.id),
 
-                  // ── Comentários ────────────────────────────────────────
                   const SizedBox(height: 24),
                   _SecaoComentarios(pontoId: _ponto.id),
 
@@ -349,9 +343,8 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // SEÇÃO HORÁRIOS
-// ─────────────────────────────────────────────────────────
+
 class _SecaoHorarios extends StatelessWidget {
   final String pontoId;
   const _SecaoHorarios({required this.pontoId});
@@ -439,7 +432,6 @@ class _SecaoHorarios extends StatelessWidget {
           )
         : const TimeOfDay(hour: 18, minute: 0);
 
-    // Usamos StatefulBuilder para atualizar os botões ao escolher hora
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -448,7 +440,6 @@ class _SecaoHorarios extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Dia da semana
               TextField(
                 controller: diaCtrl,
                 decoration: const InputDecoration(
@@ -458,7 +449,6 @@ class _SecaoHorarios extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Abertura
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(
@@ -485,7 +475,6 @@ class _SecaoHorarios extends StatelessWidget {
                 },
               ),
 
-              // Fechamento
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(
@@ -520,7 +509,6 @@ class _SecaoHorarios extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Formata para HH:mm antes de enviar
                 final aberturaStr =
                     '${abertura.hour.toString().padLeft(2, '0')}:${abertura.minute.toString().padLeft(2, '0')}';
                 final fechamentoStr =
@@ -548,9 +536,8 @@ class _SecaoHorarios extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // SEÇÃO ATIVIDADES
-// ─────────────────────────────────────────────────────────
+
 class _SecaoAtividades extends StatelessWidget {
   final String pontoId;
   const _SecaoAtividades({required this.pontoId});
@@ -678,9 +665,8 @@ class _SecaoAtividades extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // SEÇÃO EVENTOS
-// ─────────────────────────────────────────────────────────
+
 class _SecaoEventos extends StatelessWidget {
   final String pontoId;
   const _SecaoEventos({required this.pontoId});
@@ -775,7 +761,6 @@ class _SecaoEventos extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Nome
                 TextField(
                   controller: nomeCtrl,
                   decoration: const InputDecoration(
@@ -785,7 +770,6 @@ class _SecaoEventos extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                // Descrição
                 TextField(
                   controller: descCtrl,
                   decoration: const InputDecoration(
@@ -796,7 +780,6 @@ class _SecaoEventos extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Seletor de data
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(
@@ -826,7 +809,6 @@ class _SecaoEventos extends StatelessWidget {
                   },
                 ),
 
-                // Seletor de hora
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.schedule, color: Color(0xFF1B5E20)),
@@ -859,7 +841,6 @@ class _SecaoEventos extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Combina data e hora em um único DateTime
                 final dataHora = DateTime(
                   dataSelecionada.year,
                   dataSelecionada.month,
@@ -890,9 +871,8 @@ class _SecaoEventos extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // SEÇÃO AVALIAÇÕES
-// ─────────────────────────────────────────────────────────
+
 class _SecaoAvaliacoes extends StatelessWidget {
   final String pontoId;
   const _SecaoAvaliacoes({required this.pontoId});
@@ -928,7 +908,6 @@ class _SecaoAvaliacoes extends StatelessWidget {
           ],
         ),
 
-        // Avaliação do usuário logado
         if (auth.isLogado) ...[
           const SizedBox(height: 12),
           const Text('Sua avaliação:'),
@@ -956,9 +935,8 @@ class _SecaoAvaliacoes extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // SEÇÃO COMENTÁRIOS
-// ─────────────────────────────────────────────────────────
+
 class _SecaoComentarios extends StatefulWidget {
   final String pontoId;
   const _SecaoComentarios({required this.pontoId});
@@ -990,7 +968,6 @@ class _SecaoComentariosState extends State<_SecaoComentarios> {
         ),
         const SizedBox(height: 8),
 
-        // Campo para novo comentário
         if (auth.isLogado) ...[
           Row(
             children: [

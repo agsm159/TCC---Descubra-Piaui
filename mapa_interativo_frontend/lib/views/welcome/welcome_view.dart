@@ -21,7 +21,6 @@ class _WelcomeViewState extends State<WelcomeView> {
     await auth.carregarSessao();
     if (!mounted) return;
 
-    // Se já tiver sessão ativa, vai direto para o mapa
     if (auth.isLogado) {
       Navigator.pushReplacementNamed(context, '/mapa');
     }
@@ -46,11 +45,7 @@ class _WelcomeViewState extends State<WelcomeView> {
               const Spacer(),
 
               // Ícone ou logo
-              const Icon(
-                Icons.map_outlined,
-                size: 100,
-                color: Colors.white,
-              ),
+              const Icon(Icons.map_outlined, size: 100, color: Colors.white),
               const SizedBox(height: 24),
 
               const Text(
@@ -66,10 +61,7 @@ class _WelcomeViewState extends State<WelcomeView> {
               const Text(
                 'Explore os pontos históricos e turísticos do Piauí',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.white70),
               ),
 
               const Spacer(),

@@ -268,7 +268,7 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
       }
 
       if (!mounted) return;
-      Navigator.pop(context); // fecha loading
+      Navigator.pop(context);
 
       if (sucesso) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -316,7 +316,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Dropdown Cidade
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Cidade'),
                 value: _cidadeSelecionada?.id,
@@ -335,7 +334,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
               ),
               const SizedBox(height: 16),
 
-              // Dropdown Zona
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Zona'),
                 value: _zonaSelecionada?.id,
@@ -354,7 +352,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
               ),
               const SizedBox(height: 16),
 
-              // Nome
               TextFormField(
                 controller: _nomeCtrl,
                 decoration: const InputDecoration(labelText: 'Nome'),
@@ -362,7 +359,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
               ),
               const SizedBox(height: 12),
 
-              // Descrição
               TextFormField(
                 controller: _descCtrl,
                 decoration: const InputDecoration(labelText: 'Descrição'),
@@ -371,7 +367,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
               ),
               const SizedBox(height: 16),
 
-              // Coordenadas
               Row(
                 children: [
                   Expanded(
@@ -403,7 +398,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
               ),
               const SizedBox(height: 16),
 
-              // Imagens
               FilledButton.icon(
                 icon: const Icon(Icons.image),
                 label: const Text('Selecionar imagens'),
@@ -433,7 +427,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
                 ),
               const SizedBox(height: 24),
 
-              // Acessibilidades
               const Text(
                 'Acessibilidades',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -455,7 +448,6 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
               }),
               const SizedBox(height: 24),
 
-              // Botão Salvar
               Center(
                 child: FilledButton.icon(
                   icon: const Icon(Icons.save),

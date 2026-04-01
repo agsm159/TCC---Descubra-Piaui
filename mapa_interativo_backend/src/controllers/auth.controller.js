@@ -1,4 +1,4 @@
-const authService = require('../services/auth.service');
+const authService = require("../services/auth.service");
 
 module.exports = {
   async login(req, res) {
@@ -18,5 +18,18 @@ module.exports = {
     } catch (error) {
       return res.status(400).json({ erro: error.message });
     }
-  }
+  },
+
+  async recuperarSenha(req, res) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ erro: "Email é obrigatório" });
+      }
+      const resultado = await authService.recuperarSenha(email);
+      return res.json(resultado);
+    } catch (error) {
+      return res.status(400).json({ erro: error.message });
+    }
+  },
 };

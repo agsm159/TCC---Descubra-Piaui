@@ -50,6 +50,49 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<bool> registrar(
+    String emailInput,
+    String senha,
+    String? nomeInput,
+  ) async {
+    carregando = true;
+    erro = null;
+    notifyListeners();
+
+    try {
+      final response = await _api.post('/auth/registrar', {
+        'email': emailInput,
+        'senha': senha,
+        'nome': nomeInput?.isNotEmpty == true ? nomeInput : null,
+      });
+
+      return await login(emailInput, senha);
+    } catch (e) {
+      erro = 'Erro ao criar conta';
+      carregando = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> recuperarSenha(String emailInput) async {
+    carregando = true;
+    erro = null;
+    notifyListeners();
+
+    try {
+      await _api.post('/auth/recuperar-senha', {'email': emailInput});
+      carregando = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      erro = 'Erro ao enviar email de recuperação';
+      carregando = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');

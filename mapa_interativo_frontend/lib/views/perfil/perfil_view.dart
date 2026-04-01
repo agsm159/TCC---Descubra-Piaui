@@ -21,7 +21,7 @@ class PerfilView extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
 
-            // Avatar
+            // Imagem de perfil
             CircleAvatar(
               radius: 48,
               backgroundColor: const Color(0xFF1B5E20),

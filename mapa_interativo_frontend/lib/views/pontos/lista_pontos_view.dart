@@ -106,7 +106,6 @@ class _ListaPontosViewState extends State<ListaPontosView> {
             ),
           ),
 
-          // Filtros
           if (_mostrarFiltros)
             SliverToBoxAdapter(
               child: Padding(
@@ -160,7 +159,6 @@ class _ListaPontosViewState extends State<ListaPontosView> {
               ),
             ),
 
-          // Lista vazia
           if (_pontos.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
@@ -208,7 +206,6 @@ class _ListaPontosViewState extends State<ListaPontosView> {
               }, childCount: _pontos.length),
             ),
 
-          // Botão adicionar — apenas admin
           if (auth.isAdmin)
             SliverToBoxAdapter(
               child: Padding(

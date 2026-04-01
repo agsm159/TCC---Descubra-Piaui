@@ -7,11 +7,7 @@ class BarraPesquisa extends StatefulWidget {
   final Function(List<PontoInteresse>) onResultado;
   final String? idZona;
 
-  const BarraPesquisa({
-    super.key,
-    required this.onResultado,
-    this.idZona,
-  });
+  const BarraPesquisa({super.key, required this.onResultado, this.idZona});
 
   @override
   State<BarraPesquisa> createState() => _BarraPesquisaState();

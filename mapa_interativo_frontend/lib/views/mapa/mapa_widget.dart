@@ -24,10 +24,7 @@ class MapaWidget extends StatelessWidget {
 
     return FlutterMap(
       mapController: mapController,
-      options: MapOptions(
-        initialCenter: centroInicial,
-        initialZoom: 7.0,
-      ),
+      options: MapOptions(initialCenter: centroInicial, initialZoom: 7.0),
       children: [
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',

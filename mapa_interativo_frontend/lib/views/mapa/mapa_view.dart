@@ -116,7 +116,6 @@ class _MapaViewState extends State<MapaView> {
                   ],
                 ),
 
-          // Botão flutuante de adicionar — só para admin
           floatingActionButton: auth.isAdmin
               ? FloatingActionButton(
                   onPressed: _abrirAdicionarPonto,

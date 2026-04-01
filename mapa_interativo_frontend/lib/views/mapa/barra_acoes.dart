@@ -61,9 +61,7 @@ class BarraAcoes extends StatelessWidget {
                         color: iconColor,
                       ),
                       Text(
-                        isLogado
-                            ? (isAdmin ? 'Admin' : 'Perfil')
-                            : 'Entrar',
+                        isLogado ? (isAdmin ? 'Admin' : 'Perfil') : 'Entrar',
                         style: TextStyle(color: iconColor, fontSize: 11),
                       ),
                     ],
