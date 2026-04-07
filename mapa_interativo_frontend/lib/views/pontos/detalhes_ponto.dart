@@ -13,6 +13,7 @@ import '../../controllers/avaliacoes_controller.dart';
 import '../../controllers/comentarios_controller.dart';
 import '../../models/ponto_interesse.dart';
 import '../../models/acessibilidade.dart';
+import '../../core/theme.dart';
 
 class DetalhesPonto extends StatefulWidget {
   final PontoInteresse ponto;
@@ -166,7 +167,6 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
       appBar: AppBar(
         title: Text(_ponto.nome),
         actions: [
-          // Botão de editar
           if (auth.isAdmin) ...[
             IconButton(
               icon: const Icon(Icons.edit_outlined),
@@ -178,21 +178,17 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
                     builder: (_) => AdicionarPonto(pontoParaEditar: _ponto),
                   ),
                 );
-
                 if (pontoAtualizado != null && mounted) {
                   setState(() => _ponto = pontoAtualizado);
                 }
               },
             ),
-            //Botão excluir
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
               tooltip: 'Excluir ponto',
               onPressed: _confirmarExclusao,
             ),
           ],
-
-          // Botão favoritar
           if (auth.isLogado)
             IconButton(
               icon: Icon(
@@ -205,140 +201,187 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
             ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Carrossel de imagens
-                  if (_ponto.imagens.isEmpty)
-                    Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      alignment: Alignment.center,
-                      child: const Text('Sem imagens disponíveis'),
-                    )
-                  else
-                    SizedBox(
-                      height: 220,
-                      child: Stack(
-                        children: [
-                          ScrollConfiguration(
-                            behavior: ScrollConfiguration.of(context).copyWith(
-                              dragDevices: {
-                                PointerDeviceKind.touch,
-                                PointerDeviceKind.mouse,
-                              },
-                            ),
-                            child: PageView.builder(
-                              controller: _pageController,
-                              itemCount: _ponto.imagens.length,
-                              onPageChanged: (index) {
-                                setState(() => _paginaAtual = index);
-                              },
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: _buildImagem(_ponto.imagens[index]),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-
-                          if (_ponto.imagens.length > 1)
-                            Positioned(
-                              bottom: 8,
-                              left: 0,
-                              right: 0,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                  _ponto.imagens.length,
-                                  (index) => AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    width: _paginaAtual == index ? 16 : 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: _paginaAtual == index
-                                          ? const Color(0xFF1B5E20)
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Carrossel full-width ───────────────────────────
+            if (_ponto.imagens.isEmpty)
+              Container(
+                height: 240,
+                color: AppColors.verdeSutil,
+                alignment: Alignment.center,
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.photo_camera_outlined,
+                      size: 48,
+                      color: AppColors.verdeClaro,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Sem imagens disponíveis',
+                      style: TextStyle(color: AppColors.cinzaTexto),
+                    ),
+                  ],
+                ),
+              )
+            else
+              SizedBox(
+                height: 260,
+                child: Stack(
+                  children: [
+                    ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                        },
+                      ),
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: _ponto.imagens.length,
+                        onPageChanged: (index) {
+                          setState(() => _paginaAtual = index);
+                        },
+                        itemBuilder: (context, index) {
+                          return _buildImagem(_ponto.imagens[index]);
+                        },
                       ),
                     ),
 
-                  const SizedBox(height: 16),
+                    // Indicadores de página
+                    if (_ponto.imagens.length > 1)
+                      Positioned(
+                        bottom: 12,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            _ponto.imagens.length,
+                            (index) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              width: _paginaAtual == index ? 20 : 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: _paginaAtual == index
+                                    ? AppColors.branco
+                                    : AppColors.branco.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
 
+            // ── Conteúdo ───────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nome e descrição
                   Text(
                     _ponto.nome,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      color: AppColors.cinzaEscuro,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(_ponto.descricao, style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 24),
-
-                  if (_ponto.acessibilidade.isNotEmpty) ...[
-                    const Text(
-                      'Acessibilidade:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    _ponto.descricao,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: AppColors.cinzaTexto,
+                      height: 1.5,
                     ),
-                    const SizedBox(height: 8),
+                  ),
+
+                  // ── Acessibilidades ─────────────────────────
+                  if (_ponto.acessibilidade.isNotEmpty) ...[
+                    const SizedBox(height: 20),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    _cabecalhoSecao(Icons.accessibility_new, 'Acessibilidade'),
+                    const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: _ponto.acessibilidade.map((tipo) {
                         return Chip(
-                          avatar: Icon(_iconeAcessibilidade(tipo), size: 20),
+                          avatar: Icon(
+                            _iconeAcessibilidade(tipo),
+                            size: 16,
+                            color: AppColors.verdePrincipal,
+                          ),
                           label: Text(_nomeAcessibilidade(tipo)),
                         );
                       }).toList(),
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  // ── Horários ────────────────────────────────
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
                   _SecaoHorarios(pontoId: _ponto.id),
 
-                  const SizedBox(height: 24),
+                  // ── Atividades ──────────────────────────────
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
                   _SecaoAtividades(pontoId: _ponto.id),
 
-                  const SizedBox(height: 24),
+                  // ── Eventos ─────────────────────────────────
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
                   _SecaoEventos(pontoId: _ponto.id),
 
-                  const SizedBox(height: 24),
+                  // ── Avaliações ──────────────────────────────
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
                   _SecaoAvaliacoes(pontoId: _ponto.id),
 
-                  const SizedBox(height: 24),
+                  // ── Comentários ─────────────────────────────
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
                   _SecaoComentarios(pontoId: _ponto.id),
 
                   const SizedBox(height: 32),
                 ],
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _cabecalhoSecao(IconData icone, String titulo) {
+    return Row(
+      children: [
+        Icon(icone, size: 18, color: AppColors.verdePrincipal),
+        const SizedBox(width: 8),
+        Text(
+          titulo,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.cinzaEscuro,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -360,9 +403,23 @@ class _SecaoHorarios extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Horário de Funcionamento',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  size: 18,
+                  color: AppColors.verdePrincipal,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Horário de Funcionamento',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.cinzaEscuro,
+                  ),
+                ),
+              ],
             ),
             if (auth.isAdmin)
               IconButton(
@@ -553,9 +610,23 @@ class _SecaoAtividades extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Atividades',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Icon(
+                  Icons.local_activity,
+                  size: 18,
+                  color: AppColors.verdePrincipal,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Atividades',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.cinzaEscuro,
+                  ),
+                ),
+              ],
             ),
             if (auth.isAdmin)
               IconButton(
@@ -683,9 +754,19 @@ class _SecaoEventos extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Eventos',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Icon(Icons.event, size: 18, color: AppColors.verdePrincipal),
+                const SizedBox(width: 8),
+                const Text(
+                  'Eventos',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.cinzaEscuro,
+                  ),
+                ),
+              ],
             ),
             if (auth.isAdmin)
               IconButton(
@@ -885,9 +966,23 @@ class _SecaoAvaliacoes extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Avaliações',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Icon(
+              Icons.star_outline_rounded,
+              size: 18,
+              color: AppColors.verdePrincipal,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Avaliações',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.cinzaEscuro,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
 
@@ -962,9 +1057,23 @@ class _SecaoComentariosState extends State<_SecaoComentarios> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Comentários',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Icon(
+              Icons.chat_bubble_outline,
+              size: 18,
+              color: AppColors.verdePrincipal,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Comentários',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.cinzaEscuro,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
 

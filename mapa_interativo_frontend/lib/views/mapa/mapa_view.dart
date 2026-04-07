@@ -4,12 +4,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/pontos_controller.dart';
+import '../../core/theme.dart';
 import '../../models/ponto_interesse.dart';
 import 'mapa_widget.dart';
 import 'barra_acoes.dart';
 import '../pontos/lista_pontos_view.dart';
 import '../pontos/detalhes_ponto.dart';
-import '../pontos/adicionar_ponto.dart';
 
 class MapaView extends StatefulWidget {
   const MapaView({super.key});
@@ -46,13 +46,6 @@ class _MapaViewState extends State<MapaView> {
     }
   }
 
-  void _abrirAdicionarPonto() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const AdicionarPonto()),
-    );
-  }
-
   Future<void> _mostrarInfo(PontoInteresse ponto) async {
     final resultado = await Navigator.push<PontoInteresse?>(
       context,
@@ -80,19 +73,50 @@ class _MapaViewState extends State<MapaView> {
 
         return Scaffold(
           body: pontosController.carregando
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.verdePrincipal,
+                  ),
+                )
               : pontosController.erro != null
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(pontosController.erro!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => pontosController.carregarPontos(),
-                        child: const Text('Tentar novamente'),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.wifi_off_rounded,
+                          size: 64,
+                          color: AppColors.cinzaBorda,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Não foi possível carregar os pontos',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.cinzaEscuro,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          pontosController.erro!,
+                          style: const TextStyle(
+                            color: AppColors.cinzaTexto,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () => pontosController.carregarPontos(),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Tentar novamente'),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : isMobile
@@ -115,14 +139,6 @@ class _MapaViewState extends State<MapaView> {
                     ),
                   ],
                 ),
-
-          floatingActionButton: auth.isAdmin
-              ? FloatingActionButton(
-                  onPressed: _abrirAdicionarPonto,
-                  backgroundColor: const Color(0xFF1B5E20),
-                  child: const Icon(Icons.add, color: Colors.white),
-                )
-              : null,
 
           bottomNavigationBar: BarraAcoes(
             onAbrirLista: _abrirLista,

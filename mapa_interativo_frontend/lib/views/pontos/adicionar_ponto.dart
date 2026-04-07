@@ -12,6 +12,7 @@ import '../../models/cidade.dart';
 import '../../models/zona.dart';
 import '../../models/acessibilidade.dart';
 import '../../core/validators.dart';
+import '../../core/theme.dart';
 import '../../data/upload_repository.dart';
 
 class AdicionarPonto extends StatefulWidget {
@@ -85,6 +86,25 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
     _latCtrl.dispose();
     _longCtrl.dispose();
     super.dispose();
+  }
+
+  String _nomeAcessibilidade(Acessibilidade tipo) {
+    switch (tipo) {
+      case Acessibilidade.rampa:
+        return 'Rampa';
+      case Acessibilidade.elevador:
+        return 'Elevador';
+      case Acessibilidade.braille:
+        return 'Braille';
+      case Acessibilidade.audioGuia:
+        return 'Áudio Guia';
+      case Acessibilidade.pisoTatil:
+        return 'Piso Tátil';
+      case Acessibilidade.interpreteLibras:
+        return 'Intérprete de Libras';
+      case Acessibilidade.outro:
+        return 'Outro';
+    }
   }
 
   Future<void> _mostrarModalAddCidade() async {
@@ -303,162 +323,282 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
 
   @override
   Widget build(BuildContext context) {
+    final isEdicao = widget.pontoParaEditar != null;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.pontoParaEditar != null ? 'Editar Ponto' : 'Adicionar Ponto',
-        ),
+        title: Text(isEdicao ? 'Editar Ponto' : 'Adicionar Ponto'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Cidade'),
-                value: _cidadeSelecionada?.id,
-                items: _cidades
-                    .map(
-                      (c) => DropdownMenuItem(value: c.id, child: Text(c.nome)),
-                    )
-                    .toList(),
-                onChanged: _onCidadeChanged,
-                validator: (v) => v == null ? 'Selecione uma cidade' : null,
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Adicionar Cidade'),
-                onPressed: _mostrarModalAddCidade,
-              ),
-              const SizedBox(height: 16),
-
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Zona'),
-                value: _zonaSelecionada?.id,
-                items: _zonas
-                    .map(
-                      (z) => DropdownMenuItem(value: z.id, child: Text(z.nome)),
-                    )
-                    .toList(),
-                onChanged: _onZonaChanged,
-                validator: (v) => v == null ? 'Selecione uma zona' : null,
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Adicionar Zona'),
-                onPressed: _mostrarModalAddZona,
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _nomeCtrl,
-                decoration: const InputDecoration(labelText: 'Nome'),
-                validator: Validators.validarTexto,
-              ),
-              const SizedBox(height: 12),
-
-              TextFormField(
-                controller: _descCtrl,
-                decoration: const InputDecoration(labelText: 'Descrição'),
-                maxLines: 3,
-                validator: Validators.validarTexto,
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _latCtrl,
-                      decoration: const InputDecoration(labelText: 'Latitude'),
-                      keyboardType: TextInputType.number,
-                      validator: Validators.validarCoordenada,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _longCtrl,
-                      decoration: const InputDecoration(labelText: 'Longitude'),
-                      keyboardType: TextInputType.number,
-                      validator: Validators.validarCoordenada,
-                    ),
-                  ),
-                ],
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  icon: const Icon(Icons.my_location),
-                  label: const Text('Usar localização atual'),
-                  onPressed: _usarLocalizacaoAtual,
+        child: Column(
+          children: [
+            // Cabeçalho
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+              decoration: const BoxDecoration(
+                color: AppColors.verdePrincipal,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
                 ),
               ),
-              const SizedBox(height: 16),
-
-              FilledButton.icon(
-                icon: const Icon(Icons.image),
-                label: const Text('Selecionar imagens'),
-                onPressed: _selecionarImagens,
+              child: Text(
+                isEdicao
+                    ? 'Edite as informações do ponto'
+                    : 'Preencha as informações do novo ponto turístico',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.branco.withOpacity(0.9),
+                ),
               ),
-              const SizedBox(height: 12),
-              if (_imagensSelecionadas.isNotEmpty)
-                SizedBox(
-                  height: 160,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _imagensSelecionadas.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.memory(
-                            _imagensBytes[index],
-                            width: 120,
-                            fit: BoxFit.cover,
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Localização
+                    _cabecalhoSecao(
+                      Icons.location_city_outlined,
+                      'Localização',
+                    ),
+                    const SizedBox(height: 12),
+
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Cidade',
+                        prefixIcon: Icon(Icons.location_city_outlined),
+                      ),
+                      value: _cidadeSelecionada?.id,
+                      items: _cidades
+                          .map(
+                            (c) => DropdownMenuItem(
+                              value: c.id,
+                              child: Text(c.nome),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: _onCidadeChanged,
+                      validator: (v) =>
+                          v == null ? 'Selecione uma cidade' : null,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('Nova cidade'),
+                        onPressed: _mostrarModalAddCidade,
+                      ),
+                    ),
+
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Zona',
+                        prefixIcon: Icon(Icons.map_outlined),
+                      ),
+                      value: _zonaSelecionada?.id,
+                      items: _zonas
+                          .map(
+                            (z) => DropdownMenuItem(
+                              value: z.id,
+                              child: Text(z.nome),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: _onZonaChanged,
+                      validator: (v) => v == null ? 'Selecione uma zona' : null,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('Nova zona'),
+                        onPressed: _mostrarModalAddZona,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Informações
+                    _cabecalhoSecao(Icons.info_outline, 'Informações'),
+                    const SizedBox(height: 12),
+
+                    TextFormField(
+                      controller: _nomeCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Nome do ponto',
+                        prefixIcon: Icon(Icons.place_outlined),
+                      ),
+                      validator: Validators.validarTexto,
+                    ),
+                    const SizedBox(height: 12),
+
+                    TextFormField(
+                      controller: _descCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Descrição',
+                        prefixIcon: Icon(Icons.description_outlined),
+                        alignLabelWithHint: true,
+                      ),
+                      maxLines: 3,
+                      validator: Validators.validarTexto,
+                    ),
+
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Coordenadas
+                    _cabecalhoSecao(Icons.my_location, 'Coordenadas'),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _latCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Latitude',
+                            ),
+                            keyboardType: TextInputType.number,
+                            validator: Validators.validarCoordenada,
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _longCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Longitude',
+                            ),
+                            keyboardType: TextInputType.number,
+                            validator: Validators.validarCoordenada,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.my_location, size: 16),
+                        label: const Text('Usar localização atual'),
+                        onPressed: _usarLocalizacaoAtual,
+                      ),
+                    ),
+
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Imagens
+                    _cabecalhoSecao(Icons.photo_library_outlined, 'Imagens'),
+                    const SizedBox(height: 12),
+
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.add_photo_alternate_outlined),
+                      label: const Text('Selecionar imagens'),
+                      onPressed: _selecionarImagens,
+                    ),
+                    if (_imagensSelecionadas.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 120,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _imagensSelecionadas.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.memory(
+                                  _imagensBytes[index],
+                                  width: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Acessibilidades
+                    _cabecalhoSecao(Icons.accessibility_new, 'Acessibilidades'),
+                    const SizedBox(height: 4),
+
+                    ...Acessibilidade.values.map((ac) {
+                      final selecionado = _acessibilidadesSelecionadas.contains(
+                        ac,
                       );
-                    },
-                  ),
-                ),
-              const SizedBox(height: 24),
+                      return CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          _nomeAcessibilidade(ac),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        value: selecionado,
+                        activeColor: AppColors.verdePrincipal,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        onChanged: (val) {
+                          setState(() {
+                            if (val == true) {
+                              _acessibilidadesSelecionadas.add(ac);
+                            } else {
+                              _acessibilidadesSelecionadas.remove(ac);
+                            }
+                          });
+                        },
+                      );
+                    }),
 
-              const Text(
-                'Acessibilidades',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              ...Acessibilidade.values.map((ac) {
-                return CheckboxListTile(
-                  title: Text(ac.name),
-                  value: _acessibilidadesSelecionadas.contains(ac),
-                  onChanged: (selecionado) {
-                    setState(() {
-                      if (selecionado == true) {
-                        _acessibilidadesSelecionadas.add(ac);
-                      } else {
-                        _acessibilidadesSelecionadas.remove(ac);
-                      }
-                    });
-                  },
-                );
-              }),
-              const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-              Center(
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.save),
-                  label: const Text('Salvar Ponto'),
-                  onPressed: _salvar,
+                    // Botão salvar
+                    Center(
+                      child: ElevatedButton.icon(
+                        icon: Icon(isEdicao ? Icons.save : Icons.add_location),
+                        label: Text(
+                          isEdicao ? 'Salvar alterações' : 'Adicionar ponto',
+                        ),
+                        onPressed: _salvar,
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _cabecalhoSecao(IconData icone, String titulo) {
+    return Row(
+      children: [
+        Icon(icone, size: 18, color: AppColors.verdePrincipal),
+        const SizedBox(width: 8),
+        Text(
+          titulo,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.verdePrincipal,
+          ),
+        ),
+      ],
     );
   }
 }

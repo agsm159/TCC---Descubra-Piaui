@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
+import '../../core/theme.dart';
 
 class WelcomeView extends StatefulWidget {
   const WelcomeView({super.key});
@@ -20,7 +21,6 @@ class _WelcomeViewState extends State<WelcomeView> {
     final auth = context.read<AuthController>();
     await auth.carregarSessao();
     if (!mounted) return;
-
     if (auth.isLogado) {
       Navigator.pushReplacementNamed(context, '/mapa');
     }
@@ -33,98 +33,133 @@ class _WelcomeViewState extends State<WelcomeView> {
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF1B5E20), Color(0xFF4CAF50)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.verdePrincipal,
+              Color(0xFF2E7D32),
+              Color(0xFF1565C0),
+            ],
+            // controle dos gradientes da tela inicial
+            stops: [0.0, 0.4, 1.0],
           ),
         ),
         child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              children: [
+                const Spacer(flex: 2),
 
-              // Ícone ou logo
-              const Icon(Icons.map_outlined, size: 100, color: Colors.white),
-              const SizedBox(height: 24),
-
-              const Text(
-                'Mapa Interativo',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              const Text(
-                'Explore os pontos históricos e turísticos do Piauí',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.white70),
-              ),
-
-              const Spacer(),
-
-              // Botão Explorar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/mapa');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF1B5E20),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Explorar',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                // Ícone
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.branco.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.map_outlined,
+                    size: 72,
+                    color: AppColors.branco,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-              // Botão Entrar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Entrar',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                // Título
+                const Text(
+                  'Descubra Piauí',
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.branco,
+                    letterSpacing: 0.5,
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
 
-              const SizedBox(height: 48),
-            ],
+                // Subtítulo
+                Text(
+                  'Explore os pontos históricos\ne turísticos do estado do Piauí',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.branco.withOpacity(0.85),
+                    height: 1.5,
+                  ),
+                ),
+
+                const Spacer(flex: 3),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Explorar
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/mapa');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.branco,
+                        foregroundColor: AppColors.verdePrincipal,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 28,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      child: const Text('Explorar'),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    // Entrar
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.branco,
+                        side: const BorderSide(
+                          color: AppColors.branco,
+                          width: 1.5,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 28,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      child: const Text('Entrar'),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  'Faça login para usar todas as funções',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.branco.withOpacity(0.6),
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),

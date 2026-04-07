@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme.dart';
 
 class BarraAcoes extends StatelessWidget {
   final VoidCallback onAbrirLista;
@@ -16,62 +17,34 @@ class BarraAcoes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bg = theme.colorScheme.primary;
-    final iconColor = theme.colorScheme.onPrimary;
-
-    return SafeArea(
-      top: false,
-      child: Row(
-        children: [
-          Expanded(
-            child: Material(
-              color: bg,
-              child: InkWell(
-                onTap: onAbrirLista,
-                child: SizedBox(
-                  height: kBottomNavigationBarHeight,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.list, color: iconColor),
-                      Text(
-                        'Pontos',
-                        style: TextStyle(color: iconColor, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          Expanded(
-            child: Material(
-              color: bg,
-              child: InkWell(
-                onTap: onAbrirPerfil,
-                child: SizedBox(
-                  height: kBottomNavigationBarHeight,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        isLogado ? Icons.account_circle : Icons.login,
-                        color: iconColor,
-                      ),
-                      Text(
-                        isLogado ? (isAdmin ? 'Admin' : 'Perfil') : 'Entrar',
-                        style: TextStyle(color: iconColor, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+    return BottomNavigationBar(
+      backgroundColor: AppColors.verdePrincipal,
+      selectedItemColor: AppColors.branco,
+      unselectedItemColor: AppColors.branco.withOpacity(0.6),
+      selectedLabelStyle: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
       ),
+      unselectedLabelStyle: const TextStyle(fontSize: 11),
+      onTap: (index) {
+        if (index == 0) onAbrirLista();
+        if (index == 1) onAbrirPerfil();
+      },
+      currentIndex: 0,
+      items: [
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.explore_outlined),
+          activeIcon: Icon(Icons.explore),
+          label: 'Pontos',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            isLogado ? Icons.account_circle_outlined : Icons.login_outlined,
+          ),
+          activeIcon: Icon(isLogado ? Icons.account_circle : Icons.login),
+          label: isLogado ? (isAdmin ? 'Admin' : 'Perfil') : 'Entrar',
+        ),
+      ],
     );
   }
 }

@@ -26,6 +26,9 @@ module.exports = {
   },
 
   async registrar({ email, senha, nome, isAdmin }) {
+    const existente = await prisma.usuario.findUnique({ where: { email } });
+    if (existente) throw new Error("Este email já está cadastrado");
+
     const senhaHash = await bcrypt.hash(senha, 10);
     return prisma.usuario.create({
       data: { email, senha: senhaHash, nome, isAdmin: isAdmin ?? false },

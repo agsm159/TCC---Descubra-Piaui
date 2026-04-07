@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
+import '../../core/theme.dart';
 import '../../models/ponto_interesse.dart';
 
 class MapaWidget extends StatelessWidget {
@@ -20,11 +21,11 @@ class MapaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LatLng centroInicial = const LatLng(-5.0892, -42.8019);
+    const LatLng centroInicial = LatLng(-5.0892, -42.8019);
 
     return FlutterMap(
       mapController: mapController,
-      options: MapOptions(initialCenter: centroInicial, initialZoom: 7.0),
+      options: const MapOptions(initialCenter: centroInicial, initialZoom: 7.0),
       children: [
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -34,15 +35,31 @@ class MapaWidget extends StatelessWidget {
         MarkerLayer(
           markers: pontos.map((ponto) {
             return Marker(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               point: LatLng(ponto.latitude, ponto.longitude),
               child: GestureDetector(
                 onTap: () => onAbrirDetalhes(ponto),
-                child: const Icon(
-                  Icons.location_on,
-                  size: 36,
-                  color: Colors.red,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      bottom: 2,
+                      child: Container(
+                        width: 12,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.location_on,
+                      size: 40,
+                      color: AppColors.verdePrincipal,
+                    ),
+                  ],
                 ),
               ),
             );

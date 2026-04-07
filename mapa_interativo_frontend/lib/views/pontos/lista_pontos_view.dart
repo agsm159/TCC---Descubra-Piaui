@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/pontos_controller.dart';
 import '../../controllers/cidades_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../core/theme.dart';
 import '../../models/ponto_interesse.dart';
 import '../../models/cidade.dart';
 import 'barra_pesquisa.dart';
@@ -81,11 +82,14 @@ class _ListaPontosViewState extends State<ListaPontosView> {
     final auth = context.watch<AuthController>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Pontos de Interesse'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(
+              _mostrarFiltros ? Icons.filter_list_off : Icons.filter_list,
+            ),
             tooltip: 'Mostrar/Ocultar filtros',
             onPressed: () {
               setState(() => _mostrarFiltros = !_mostrarFiltros);
@@ -93,12 +97,19 @@ class _ListaPontosViewState extends State<ListaPontosView> {
           ),
         ],
       ),
+      floatingActionButton: auth.isAdmin
+          ? FloatingActionButton(
+              onPressed: _abrirFormulario,
+              backgroundColor: AppColors.verdePrincipal,
+              foregroundColor: AppColors.branco,
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: CustomScrollView(
         slivers: [
-          // Barra de pesquisa
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
               child: BarraPesquisa(
                 onResultado: _atualizarLista,
                 idZona: _zonaSelecionada,
@@ -108,13 +119,56 @@ class _ListaPontosViewState extends State<ListaPontosView> {
 
           if (_mostrarFiltros)
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.branco,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cinzaBorda),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.filter_alt_outlined,
+                          color: AppColors.verdePrincipal,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'Filtrar por',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.verdePrincipal,
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          icon: const Icon(Icons.clear, size: 16),
+                          label: const Text('Limpar'),
+                          onPressed: () {
+                            final pontosController = context
+                                .read<PontosController>();
+                            setState(() {
+                              _cidadeSelecionada = null;
+                              _zonaSelecionada = null;
+                              _pontos = pontosController.todos
+                                ..sort((a, b) => a.nome.compareTo(b.nome));
+                              _mostrarFiltros = false;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: 'Cidade'),
+                      decoration: const InputDecoration(
+                        labelText: 'Cidade',
+                        prefixIcon: Icon(Icons.location_city_outlined),
+                      ),
                       value: _cidadeSelecionada?.id,
                       items: cidadesController.todasCidades.map((cidade) {
                         return DropdownMenuItem(
@@ -124,10 +178,13 @@ class _ListaPontosViewState extends State<ListaPontosView> {
                       }).toList(),
                       onChanged: _selecionarCidade,
                     ),
-                    const SizedBox(height: 8),
-                    if (_cidadeSelecionada != null)
+                    if (_cidadeSelecionada != null) ...[
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: 'Zona'),
+                        decoration: const InputDecoration(
+                          labelText: 'Zona',
+                          prefixIcon: Icon(Icons.map_outlined),
+                        ),
                         value: _zonaSelecionada,
                         items: _cidadeSelecionada!.zonas.map((zona) {
                           return DropdownMenuItem(
@@ -137,89 +194,181 @@ class _ListaPontosViewState extends State<ListaPontosView> {
                         }).toList(),
                         onChanged: _selecionarZona,
                       ),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.clear),
-                      label: const Text('Limpar filtros'),
-                      onPressed: () {
-                        final pontosController = context
-                            .read<PontosController>();
-                        setState(() {
-                          _cidadeSelecionada = null;
-                          _zonaSelecionada = null;
-                          _pontos = pontosController.todos
-                            ..sort((a, b) => a.nome.compareTo(b.nome));
-                          _mostrarFiltros = false;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
+                    ],
                   ],
                 ),
               ),
             ),
 
           if (_pontos.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 40),
-                child: Center(
-                  child: Column(
-                    children: const [
-                      Icon(Icons.search_off, size: 64, color: Colors.grey),
-                      SizedBox(height: 12),
-                      Text(
-                        'Nenhum ponto encontrado.',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off_rounded,
+                      size: 72,
+                      color: AppColors.cinzaBorda,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Nenhum ponto encontrado',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.cinzaTexto,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Tente ajustar os filtros ou a busca',
+                      style: TextStyle(color: AppColors.cinzaTexto),
+                    ),
+                  ],
                 ),
               ),
             )
           else
-            SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final ponto = _pontos[index];
-                return ListTile(
-                  title: Text(ponto.nome),
-                  subtitle: Text(
-                    ponto.descricao,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetalhesPonto(ponto: ponto),
-                      ),
-                    ).then((_) {
-                      final pontosController = context.read<PontosController>();
-                      setState(() {
-                        _pontos = pontosController.todos
-                          ..sort((a, b) => a.nome.compareTo(b.nome));
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 100),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final ponto = _pontos[index];
+                  return _CardPonto(
+                    ponto: ponto,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetalhesPonto(ponto: ponto),
+                        ),
+                      ).then((_) {
+                        final pontosController = context
+                            .read<PontosController>();
+                        setState(() {
+                          _pontos = pontosController.todos
+                            ..sort((a, b) => a.nome.compareTo(b.nome));
+                        });
                       });
-                    });
-                  },
-                );
-              }, childCount: _pontos.length),
-            ),
-
-          if (auth.isAdmin)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: FilledButton.icon(
-                    onPressed: _abrirFormulario,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Adicionar Ponto'),
-                  ),
-                ),
+                    },
+                  );
+                }, childCount: _pontos.length),
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _CardPonto extends StatelessWidget {
+  final PontoInteresse ponto;
+  final VoidCallback onTap;
+
+  const _CardPonto({required this.ponto, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 110,
+              height: 110,
+              child: ponto.imagens.isNotEmpty
+                  ? Image.network(
+                      ponto.imagens.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholderImagem(),
+                    )
+                  : _placeholderImagem(),
+            ),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ponto.nome,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.cinzaEscuro,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      ponto.descricao,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.cinzaTexto,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+
+                    if (ponto.acessibilidade.isNotEmpty)
+                      Wrap(
+                        spacing: 4,
+                        children: ponto.acessibilidade
+                            .take(2)
+                            .map(
+                              (a) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.verdeSutil,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  a.name,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: AppColors.verdePrincipal,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Seta
+            const Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Icon(Icons.chevron_right, color: AppColors.cinzaTexto),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _placeholderImagem() {
+    return Container(
+      color: AppColors.verdeSutil,
+      child: const Center(
+        child: Icon(
+          Icons.photo_camera_outlined,
+          color: AppColors.verdeClaro,
+          size: 36,
+        ),
       ),
     );
   }
