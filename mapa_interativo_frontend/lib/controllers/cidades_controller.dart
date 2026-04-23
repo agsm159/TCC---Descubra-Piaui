@@ -82,4 +82,70 @@ class CidadesController extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> editarCidade(String id, String nome) async {
+    try {
+      final atualizada = await _repository.editarCidade(id, nome);
+      final index = _cidades.indexWhere((c) => c.id == id);
+      if (index != -1) {
+        _cidades[index] = atualizada;
+        notifyListeners();
+      }
+      return true;
+    } catch (e) {
+      erro = 'Erro ao editar cidade: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> excluirCidade(String id) async {
+    try {
+      await _repository.excluirCidade(id);
+      _cidades.removeWhere((c) => c.id == id);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      erro = 'Erro ao excluir cidade: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> editarZona(String cidadeId, String zonaId, String nome) async {
+    try {
+      final atualizada = await _repository.editarZona(zonaId, nome);
+      final cidadeIndex = _cidades.indexWhere((c) => c.id == cidadeId);
+      if (cidadeIndex != -1) {
+        final zonaIndex = _cidades[cidadeIndex].zonas.indexWhere(
+          (z) => z.id == zonaId,
+        );
+        if (zonaIndex != -1) {
+          _cidades[cidadeIndex].zonas[zonaIndex] = atualizada;
+          notifyListeners();
+        }
+      }
+      return true;
+    } catch (e) {
+      erro = 'Erro ao editar zona: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> excluirZona(String cidadeId, String zonaId) async {
+    try {
+      await _repository.excluirZona(zonaId);
+      final cidadeIndex = _cidades.indexWhere((c) => c.id == cidadeId);
+      if (cidadeIndex != -1) {
+        _cidades[cidadeIndex].zonas.removeWhere((z) => z.id == zonaId);
+        notifyListeners();
+      }
+      return true;
+    } catch (e) {
+      erro = 'Erro ao excluir zona: $e';
+      notifyListeners();
+      return false;
+    }
+  }
 }

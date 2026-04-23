@@ -100,7 +100,6 @@ class PerfilView extends StatelessWidget {
               ),
             ),
 
-            // ── Conteúdo ───────────────────────────────────
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -176,9 +175,29 @@ class PerfilView extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 12),
 
-                  // Botão logout
+                  if (auth.isAdmin) ...[
+                    const SizedBox(height: 12),
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.location_city_outlined,
+                          color: AppColors.verdePrincipal,
+                        ),
+                        title: const Text('Gerenciar Localizações'),
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                          color: AppColors.cinzaTexto,
+                        ),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          '/gerenciar-localizacoes',
+                        ),
+                      ),
+                    ),
+                  ],
+
                   Center(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.red),

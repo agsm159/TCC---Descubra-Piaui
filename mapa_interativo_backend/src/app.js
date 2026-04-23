@@ -12,6 +12,7 @@ const atividadesRoutes = require('./routes/atividades.routes');
 const eventosRoutes = require('./routes/eventos.routes');
 const avaliacoesRoutes = require('./routes/avaliacoes.routes');
 const comentariosRoutes = require('./routes/comentarios.routes');
+const utilsRoutes = require('./routes/utils.routes');
 
 const app = express();
 
@@ -33,5 +34,6 @@ app.use('/api/pontos/:pontoId/atividades', atividadesRoutes);
 app.use('/api/pontos/:pontoId/eventos', eventosRoutes);
 app.use('/api/pontos/:pontoId/avaliacoes', avaliacoesRoutes);
 app.use('/api/pontos/:pontoId/comentarios', comentariosRoutes);
+app.use('/api/utils', utilsRoutes);
 
 module.exports = app;

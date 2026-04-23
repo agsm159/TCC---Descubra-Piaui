@@ -25,7 +25,6 @@ module.exports = {
   },
 
   async atualizar(id, usuarioId, texto) {
-    // Verifica se o comentário pertence ao usuário
     const comentario = await prisma.comentario.findUnique({ where: { id } });
     if (!comentario) throw new Error('Comentário não encontrado');
     if (comentario.usuarioId !== usuarioId) throw new Error('Sem permissão para editar este comentário');
@@ -45,7 +44,6 @@ module.exports = {
     const comentario = await prisma.comentario.findUnique({ where: { id } });
     if (!comentario) throw new Error('Comentário não encontrado');
 
-    // Admin pode deletar qualquer comentário, usuário só o próprio
     if (!isAdmin && comentario.usuarioId !== usuarioId) {
       throw new Error('Sem permissão para deletar este comentário');
     }

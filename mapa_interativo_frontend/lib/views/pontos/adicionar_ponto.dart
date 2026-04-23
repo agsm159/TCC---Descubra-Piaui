@@ -5,6 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+import 'package:latlong2/latlong.dart';
 import '../../controllers/pontos_controller.dart';
 import '../../controllers/cidades_controller.dart';
 import '../../models/ponto_interesse.dart';
@@ -13,6 +16,7 @@ import '../../models/zona.dart';
 import '../../models/acessibilidade.dart';
 import '../../core/validators.dart';
 import '../../core/theme.dart';
+import '../../core/api_service.dart';
 import '../../data/upload_repository.dart';
 
 class AdicionarPonto extends StatefulWidget {
@@ -32,11 +36,15 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
   List<Zona> _zonas = [];
   Cidade? _cidadeSelecionada;
   Zona? _zonaSelecionada;
+  double? _previewLat;
+  double? _previewLng;
 
   final _nomeCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
   final _latCtrl = TextEditingController();
   final _longCtrl = TextEditingController();
+  final _linkMapaCtrl = TextEditingController();
+  final _previewMapController = MapController();
 
   List<XFile> _imagensSelecionadas = [];
   List<Uint8List> _imagensBytes = [];
@@ -45,6 +53,10 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
   @override
   void initState() {
     super.initState();
+
+    _latCtrl.addListener(_atualizarPreview);
+    _longCtrl.addListener(_atualizarPreview);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final cidadesController = context.read<CidadesController>();
       await cidadesController.carregarCidades();
@@ -81,10 +93,14 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
 
   @override
   void dispose() {
+    _latCtrl.removeListener(_atualizarPreview);
+    _longCtrl.removeListener(_atualizarPreview);
+    _previewMapController.dispose();
     _nomeCtrl.dispose();
     _descCtrl.dispose();
     _latCtrl.dispose();
     _longCtrl.dispose();
+    _linkMapaCtrl.dispose();
     super.dispose();
   }
 
@@ -229,6 +245,120 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
     final pos = await Geolocator.getCurrentPosition();
     _latCtrl.text = pos.latitude.toString();
     _longCtrl.text = pos.longitude.toString();
+  }
+
+  void _atualizarPreview() {
+    final lat = double.tryParse(_latCtrl.text.trim());
+    final lng = double.tryParse(_longCtrl.text.trim());
+    if (lat != null && lng != null) {
+      final jaExibia = _previewLat != null && _previewLng != null;
+      setState(() {
+        _previewLat = lat;
+        _previewLng = lng;
+      });
+      if (jaExibia) {
+        try {
+          _previewMapController.move(LatLng(lat, lng), 15);
+        } catch (_) {}
+      }
+    } else {
+      setState(() {
+        _previewLat = null;
+        _previewLng = null;
+      });
+    }
+  }
+
+  // Extrair coordenadas de links do google maps
+  Future<void> _extrairCoordenadas() async {
+    final link = _linkMapaCtrl.text.trim();
+    if (link.isEmpty) return;
+
+    String urlFinal = link;
+
+    if (link.contains('goo.gl') || link.contains('share.google')) {
+      try {
+        final api = context.read<ApiService>();
+        final response = await api.get(
+          '/utils/resolver-link',
+          params: {'url': link},
+        );
+        urlFinal = response.data['urlFinal'] ?? link;
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao resolver o link. Verifique sua conexão.'),
+            backgroundColor: AppColors.erro,
+          ),
+        );
+        return;
+      }
+    }
+
+    double? lat;
+    double? lng;
+
+    // Formato 1: /maps/search/-5.085,-42.79
+    final regexSearch = RegExp(r'maps/search/(-?\d+\.?\d*),\+?(-?\d+\.?\d*)');
+    final matchSearch = regexSearch.firstMatch(urlFinal);
+    if (matchSearch != null) {
+      lat = double.tryParse(matchSearch.group(1)!);
+      lng = double.tryParse(matchSearch.group(2)!);
+    }
+
+    // Formato 2: @-5.0892,-42.8019
+    if (lat == null) {
+      final regexAt = RegExp(r'@(-?\d+\.?\d*),(-?\d+\.?\d*)');
+      final matchAt = regexAt.firstMatch(urlFinal);
+      if (matchAt != null) {
+        lat = double.tryParse(matchAt.group(1)!);
+        lng = double.tryParse(matchAt.group(2)!);
+      }
+    }
+
+    // Formato 3: ?q=-5.0892,-42.8019
+    if (lat == null) {
+      final regexQ = RegExp(r'[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)');
+      final matchQ = regexQ.firstMatch(urlFinal);
+      if (matchQ != null) {
+        lat = double.tryParse(matchQ.group(1)!);
+        lng = double.tryParse(matchQ.group(2)!);
+      }
+    }
+
+    // Formato 4: !3d-5.0892!4d-42.8019
+    if (lat == null) {
+      final regexPlace = RegExp(r'!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)');
+      final matchPlace = regexPlace.firstMatch(urlFinal);
+      if (matchPlace != null) {
+        lat = double.tryParse(matchPlace.group(1)!);
+        lng = double.tryParse(matchPlace.group(2)!);
+      }
+    }
+
+    if (!mounted) return;
+
+    if (lat != null && lng != null) {
+      setState(() {
+        _latCtrl.text = lat.toString();
+        _longCtrl.text = lng.toString();
+        _linkMapaCtrl.clear();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Coordenadas extraídas com sucesso!'),
+          backgroundColor: AppColors.sucesso,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível extrair as coordenadas deste link.'),
+          backgroundColor: AppColors.erro,
+        ),
+      );
+    }
   }
 
   Future<void> _salvar() async {
@@ -461,6 +591,31 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
                     Row(
                       children: [
                         Expanded(
+                          child: TextField(
+                            controller: _linkMapaCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Colar link do Google Maps',
+                              prefixIcon: Icon(Icons.link),
+                              hintText: 'https://maps.google.com/...',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.my_location,
+                            color: AppColors.verdePrincipal,
+                          ),
+                          tooltip: 'Extrair coordenadas',
+                          onPressed: _extrairCoordenadas,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
                           child: TextFormField(
                             controller: _latCtrl,
                             decoration: const InputDecoration(
@@ -483,6 +638,7 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
                         ),
                       ],
                     ),
+
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton.icon(
@@ -492,8 +648,62 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
                       ),
                     ),
 
+                    if (_previewLat != null && _previewLng != null) ...[
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SizedBox(
+                          height: 180,
+                          child: FlutterMap(
+                            mapController: _previewMapController,
+                            options: MapOptions(
+                              initialCenter: LatLng(_previewLat!, _previewLng!),
+                              initialZoom: 15,
+                              interactionOptions: const InteractionOptions(
+                                flags: InteractiveFlag.none,
+                              ),
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.exemplo.app',
+                                tileProvider: CancellableNetworkTileProvider(),
+                              ),
+                              MarkerLayer(
+                                markers: [
+                                  Marker(
+                                    point: LatLng(_previewLat!, _previewLng!),
+                                    width: 40,
+                                    height: 40,
+                                    child: const Icon(
+                                      Icons.location_on,
+                                      size: 40,
+                                      color: AppColors.verdePrincipal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Center(
+                        child: Text(
+                          'Preview da localização',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.cinzaTexto,
+                          ),
+                        ),
+                      ),
+                    ],
+
                     const Divider(),
                     const SizedBox(height: 8),
+
+                    // Imagens
 
                     // Imagens
                     _cabecalhoSecao(Icons.photo_library_outlined, 'Imagens'),

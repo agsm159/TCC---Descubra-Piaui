@@ -8,6 +8,7 @@ import 'views/mapa/mapa_view.dart';
 import 'views/login/login_view.dart';
 import 'views/perfil/perfil_view.dart';
 import 'views/favoritos/favoritos_view.dart';
+import 'views/admin/gerenciar_localizacoes_view.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -25,6 +26,7 @@ class App extends StatelessWidget {
         '/mapa': (context) => const MapaView(),
         '/perfil': (context) => const PerfilView(),
         '/favoritos': (context) => const FavoritosView(),
+        '/gerenciar-localizacoes': (context) => const GerenciarLocalizacoesView(),
       },
 
       localizationsDelegates: const [

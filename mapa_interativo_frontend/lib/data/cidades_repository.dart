@@ -22,6 +22,15 @@ class CidadesRepository {
     return Cidade.fromJson(response.data);
   }
 
+  Future<Cidade> editarCidade(String id, String nome) async {
+    final response = await _api.put('/cidades/$id', {'nome': nome});
+    return Cidade.fromJson(response.data);
+  }
+
+  Future<void> excluirCidade(String id) async {
+    await _api.delete('/cidades/$id');
+  }
+
   Future<List<Zona>> getZonasPorCidade(String cidadeId) async {
     final response = await _api.get('/zonas', params: {'cidadeId': cidadeId});
     final List data = response.data;
@@ -34,5 +43,14 @@ class CidadesRepository {
       'cidadeId': cidadeId,
     });
     return Zona.fromJson(response.data);
+  }
+
+  Future<Zona> editarZona(String id, String nome) async {
+    final response = await _api.put('/zonas/$id', {'nome': nome});
+    return Zona.fromJson(response.data);
+  }
+
+  Future<void> excluirZona(String id) async {
+    await _api.delete('/zonas/$id');
   }
 }
