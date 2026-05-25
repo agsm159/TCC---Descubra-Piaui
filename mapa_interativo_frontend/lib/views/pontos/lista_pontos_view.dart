@@ -39,22 +39,30 @@ class _ListaPontosViewState extends State<ListaPontosView> {
 
   void _selecionarCidade(String? id) {
     final cidadesController = context.read<CidadesController>();
+    final pontosController = context.read<PontosController>();
     setState(() {
       _cidadeSelecionada = cidadesController.buscarCidadePorId(id!);
       _zonaSelecionada = null;
-      _pontos = [];
+      _pontos = pontosController.buscarPorCidade(id, cidadesController);
     });
   }
 
   void _selecionarZona(String? idZona) {
     final pontosController = context.read<PontosController>();
+    final cidadesController = context.read<CidadesController>();
     setState(() {
       _zonaSelecionada = idZona;
       if (idZona != null) {
         _pontos = pontosController.buscarPorZona(idZona)
           ..sort((a, b) => a.nome.compareTo(b.nome));
+      } else if (_cidadeSelecionada != null) {
+        _pontos = pontosController.buscarPorCidade(
+          _cidadeSelecionada!.id,
+          cidadesController,
+        );
       } else {
-        _pontos = [];
+        _pontos = pontosController.todos
+          ..sort((a, b) => a.nome.compareTo(b.nome));
       }
     });
   }

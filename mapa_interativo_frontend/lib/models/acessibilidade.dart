@@ -1,16 +1,16 @@
 enum Acessibilidade {
   rampa,
   elevador,
+  banheirosAdaptados,
+  pisoTatil,
   braille,
   audioGuia,
-  pisoTatil,
   interpreteLibras,
-  outro;
+  estacionamentoReservado;
 
   static Acessibilidade fromString(String valor) {
     return Acessibilidade.values.firstWhere(
       (a) => a.name == valor,
-      orElse: () => Acessibilidade.outro,
     );
   }
 }

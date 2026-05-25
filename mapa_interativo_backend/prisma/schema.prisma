@@ -17,6 +17,8 @@ model Usuario {
   favoritos  Favorito[]
   avaliacoes  Avaliacao[]
   comentarios Comentario[]
+  resetToken    String?
+  resetTokenExp DateTime?
 }
 
 model Cidade {

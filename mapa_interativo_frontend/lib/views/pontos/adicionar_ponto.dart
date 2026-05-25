@@ -110,16 +110,18 @@ class _AdicionarPontoState extends State<AdicionarPonto> {
         return 'Rampa';
       case Acessibilidade.elevador:
         return 'Elevador';
+      case Acessibilidade.banheirosAdaptados:
+        return 'Banheiro Adaptado';
+      case Acessibilidade.pisoTatil:
+        return 'Piso Tátil';
       case Acessibilidade.braille:
         return 'Braille';
       case Acessibilidade.audioGuia:
         return 'Áudio Guia';
-      case Acessibilidade.pisoTatil:
-        return 'Piso Tátil';
       case Acessibilidade.interpreteLibras:
         return 'Intérprete de Libras';
-      case Acessibilidade.outro:
-        return 'Outro';
+      case Acessibilidade.estacionamentoReservado:
+        return 'Estacionamento Reservado';
     }
   }
 

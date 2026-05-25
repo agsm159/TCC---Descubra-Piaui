@@ -87,6 +87,7 @@ class _LoginViewState extends State<LoginView> {
             'Email de recuperação enviado! Verifique sua caixa de entrada.',
           ),
           backgroundColor: AppColors.sucesso,
+          duration: Duration(seconds: 6),
         ),
       );
       _mudarEstado(_TelaEstado.login);

@@ -36,4 +36,6 @@ app.use('/api/pontos/:pontoId/avaliacoes', avaliacoesRoutes);
 app.use('/api/pontos/:pontoId/comentarios', comentariosRoutes);
 app.use('/api/utils', utilsRoutes);
 
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
 module.exports = app;

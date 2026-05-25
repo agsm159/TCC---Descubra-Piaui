@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/pontos_repository.dart';
 import '../models/ponto_interesse.dart';
+import 'cidades_controller.dart';
 
 class PontosController extends ChangeNotifier {
   final PontosRepository _repository;
@@ -36,6 +37,15 @@ class PontosController extends ChangeNotifier {
         .where((p) => p.nome.toLowerCase().contains(termo.toLowerCase()))
         .toList();
   }
+
+  List<PontoInteresse> buscarPorCidade(String idCidade, CidadesController cidadesController) {
+  final zonasDaCidade = cidadesController.buscarZonasPorCidade(idCidade);
+  final idsZonas = zonasDaCidade.map((z) => z.id).toSet();
+  return _pontos
+      .where((p) => idsZonas.contains(p.idZona))
+      .toList()
+    ..sort((a, b) => a.nome.compareTo(b.nome));
+}
 
   List<PontoInteresse> buscarPorZona(String idZona) {
     return _pontos.where((p) => p.idZona == idZona).toList();

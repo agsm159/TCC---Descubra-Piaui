@@ -100,16 +100,18 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
         return Icons.accessible_forward;
       case Acessibilidade.elevador:
         return Icons.elevator;
+      case Acessibilidade.banheirosAdaptados:
+        return Icons.accessible;
+      case Acessibilidade.pisoTatil:
+        return Icons.blur_on;
       case Acessibilidade.braille:
         return Icons.line_weight;
       case Acessibilidade.audioGuia:
         return Icons.hearing;
-      case Acessibilidade.pisoTatil:
-        return Icons.blur_on;
       case Acessibilidade.interpreteLibras:
         return Icons.sign_language;
-      case Acessibilidade.outro:
-        return Icons.accessibility_new;
+      case Acessibilidade.estacionamentoReservado:
+        return Icons.local_parking;
     }
   }
 
@@ -119,16 +121,18 @@ class _DetalhesPontoState extends State<DetalhesPonto> {
         return 'Rampa';
       case Acessibilidade.elevador:
         return 'Elevador';
+      case Acessibilidade.banheirosAdaptados:
+        return 'Banheiro Adaptado';
+      case Acessibilidade.pisoTatil:
+        return 'Piso Tátil';
       case Acessibilidade.braille:
         return 'Braille';
       case Acessibilidade.audioGuia:
         return 'Áudio Guia';
-      case Acessibilidade.pisoTatil:
-        return 'Piso Tátil';
       case Acessibilidade.interpreteLibras:
-        return 'Libras';
-      case Acessibilidade.outro:
-        return 'Outro';
+        return 'Intérprete de Libras';
+      case Acessibilidade.estacionamentoReservado:
+        return 'Estacionamento Reservado';
     }
   }
 
